@@ -4,7 +4,7 @@ const $$ = document.querySelectorAll.bind(document);
 // Board game
 const board = $('#board');
 const musicEL = $('.music');
-const changeGameStatus = $('.toggle__game');
+const toggleGame = $('.toggle__game');
 
 // Audio in game
 const moveAudio = new Audio('./assets/music/move.mp3');
@@ -52,7 +52,7 @@ function gameHandle() {
         snakeDirt = [1, 0];
         score = 0;
         gameOverAudio.play();
-
+        toggleGame.innerHTML = `<i class="fa-solid fa-play"></i>`;
         board.innerHTML = `
         <button class="start__btn">
             Start New Game
@@ -77,7 +77,8 @@ function gameHandle() {
                 localStorage.setItem('scoreHighest', JSON.stringify(scoreHighest));
             }
         } else {
-            localStorage.setItem('scoreHighest', JSON.stringify(score));
+            scoreHighest = score;
+            localStorage.setItem('scoreHighest', JSON.stringify(scoreHighest));
         }
         createFood();
     }
@@ -122,6 +123,26 @@ function gameOver() {
     return false;
 }
 
+function statusHandle() {
+    if (gameStatus == 0) {
+        gameStatus = 1; 
+        board.innerHTML = '';
+        window.requestAnimationFrame(main);
+        musicAudio.play();
+        musicEL.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+        toggleGame.innerHTML = `<i class="fa-solid fa-pause"></i>`;
+        
+    } else if (gameStatus == 1) { 
+        gameStatus = 2;
+        window.cancelAnimationFrame(requestID);
+        toggleGame.innerHTML = `<i class="fa-solid fa-play"></i>`;
+    } else { 
+        gameStatus = 1;
+        window.requestAnimationFrame(main);
+        toggleGame.innerHTML = `<i class="fa-solid fa-pause"></i>`;
+    }
+}
+
 // Create food
 function createFood() {
     let foodTemp = [];
@@ -161,52 +182,29 @@ function compareBlock(pos1, pos2) {
 
 musicEL.addEventListener('click', () => {
     if (musicAudio.paused) {
-        console.log('hello')
-        musicEL.innerHTML = '<i class="fa-solid fa-volume-high"></i>'
+        musicEL.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
         musicAudio.play();
     } else {
-        musicEL.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>'
+        musicEL.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
         musicAudio.pause();
     }
-    
+    musicEL.blur();
 })
 
-changeGameStatus.addEventListener('click', () => {
-    if (gameStatus == 0) {
-        gameStatus = 1; 
-        board.innerHTML = '';
-        window.requestAnimationFrame(main);
-        musicAudio.play();
-
-    } else if (gameStatus == 1) { 
-        gameStatus = 2;
-        window.cancelAnimationFrame(requestID);
-    } else { 
-        gameStatus = 1;
-        window.requestAnimationFrame(main);
-    }
-
-    if (gameStatus == 1) {
-        changeGameStatus.innerHTML = `<i class="fa-solid fa-pause"></i>`;
-    } else {
-        changeGameStatus.innerHTML = `<i class="fa-solid fa-play"></i>`;
-    }
-})
+toggleGame.addEventListener('click', () => {
+    statusHandle();
+    toggleGame.blur();
+});
 
 board.addEventListener('click', (e) => {
     if (e.target.closest('.start__btn')) {
-        board.innerHTML = '';
-        window.requestAnimationFrame(main);
-        musicAudio.play();
+        statusHandle();
     }
 })
 
 document.addEventListener('keydown', e => {
     switch (e.code) {
         case 'ArrowUp': 
-            if (snakeTail === []) {
-
-            }
             if (snakeDirt[0] != 0 && snakeDirt[1] != 1) {
                 snakeDirt = [0, -1];
                 // moveAudio.play();
@@ -231,7 +229,7 @@ document.addEventListener('keydown', e => {
             }
             break;
         case 'Space': 
-            changeGameStatus.click();
+            statusHandle();
             break;
         default:
             break;
