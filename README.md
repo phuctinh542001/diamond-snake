@@ -8,3 +8,4 @@
 <li>Javascript</li>
 </ul>
 <p>Some icon in <a href="https://fontawesome.com/search?m=free&o=r">Here<a/></p>
+<a href="https://phuctinh542001.github.io/diamond-snake/">Try it now <3</a>
